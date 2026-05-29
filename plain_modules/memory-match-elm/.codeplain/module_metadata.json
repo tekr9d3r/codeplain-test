@@ -1,0 +1,13 @@
+{
+    "source_hash": "bf4bdc2097614bc65bcf51146e009e2c318679407cf2454fd26b256ed47c7781",
+    "functionalities": [
+        "- At the start of the game, all :Card:s are face-down and their positions are randomly shuffled.",
+        "- :Player: can flip a :Card: face-up by clicking on it.",
+        "- If :Player: flips two :Card:s with matching symbols, both :Card:s remain face-up and are marked as matched.",
+        "- If :Player: flips two :Card:s that do not match, both :Card:s flip back face-down after a short delay (1 second).",
+        "- :Player: cannot flip more than two unmatched :Card:s at a time, and cannot click already-matched :Card:s.",
+        "- :App: tracks and displays the number of moves :Player: has made.",
+        "- :App: displays a congratulations message when all pairs have been matched, showing the total number of moves taken.",
+        "- :Player: can restart the game at any time by clicking a \"New Game\" button, which reshuffles the :Card:s and resets the move counter."
+    ]
+}
