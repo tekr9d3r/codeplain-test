@@ -1,0 +1,41 @@
+***definitions***
+
+- :App: is a memory match card game.
+- :Card: is a game tile that has a hidden face-down state and a revealed face-up state showing an emoji symbol.
+- :Board: is the 4x4 grid of :Card:s displayed to :Player:.
+- :Player: is the person playing :App:.
+- :MainExecutableFile: is the main Elm source file.
+
+
+***implementation reqs***
+
+- :Implementation: should be in Elm.
+
+- :App: should be compiled to a single self-contained index.html file using "elm make src/Main.elm --output=index.html". No external dependencies beyond the Elm standard library are allowed.
+
+- :Board: should contain 16 :Card:s arranged in a 4x4 grid, made up of 8 matching pairs of emoji symbols.
+
+- :App: should follow The Elm Architecture (Model, Update, View).
+
+- :App: should have a clean, centered layout that works in any modern browser and can be deployed to Vercel as a static site.
+
+- The flip-back delay for non-matching :Card:s should be implemented using Elm's Task and Process.sleep (1 second).
+
+
+***functional specs***
+
+- At the start of the game, all :Card:s are face-down and their positions are randomly shuffled.
+
+- :Player: can flip a :Card: face-up by clicking on it.
+
+- If :Player: flips two :Card:s with matching symbols, both :Card:s remain face-up and are marked as matched.
+
+- If :Player: flips two :Card:s that do not match, both :Card:s flip back face-down after a short delay (1 second).
+
+- :Player: cannot flip more than two unmatched :Card:s at a time, and cannot click already-matched :Card:s.
+
+- :App: tracks and displays the number of moves :Player: has made.
+
+- :App: displays a congratulations message when all pairs have been matched, showing the total number of moves taken.
+
+- :Player: can restart the game at any time by clicking a "New Game" button, which reshuffles the :Card:s and resets the move counter.

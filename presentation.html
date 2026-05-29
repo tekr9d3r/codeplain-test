@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codeplain Demo — Memory Match in Elm</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8f9fc;
+      color: #1a1a2e;
+      line-height: 1.7;
+    }
+
+    a { color: #4f6ef5; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* HERO */
+    .hero {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 56px 40px 40px;
+      text-align: center;
+    }
+
+    .hero .badge {
+      display: inline-block;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      color: #4f6ef5;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: #64748b;
+      max-width: 560px;
+      margin: 0 auto 24px;
+    }
+
+    .hero-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.8; text-decoration: none; }
+    .btn-primary { background: #4f6ef5; color: #fff; }
+    .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+
+    /* LAYOUT */
+    .container {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    section {
+      padding: 56px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    section:last-child { border-bottom: none; }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #4f6ef5;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .section-desc {
+      color: #64748b;
+      margin-bottom: 28px;
+      max-width: 680px;
+    }
+
+    /* GAME EMBED */
+    .game-wrapper {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+
+    .game-wrapper .game-header {
+      background: #f8f9fc;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+
+    iframe {
+      width: 100%;
+      height: 560px;
+      border: none;
+      display: block;
+      background: #f0f2f5;
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #4f6ef5;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* PLAIN FILE */
+    .plain-file {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .plain-file .file-header {
+      background: #f8f9fc;
+      padding: 11px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    .plain-file pre {
+      padding: 24px;
+      overflow-x: auto;
+      font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+      font-size: 0.83rem;
+      line-height: 1.85;
+      color: #334155;
+    }
+
+    .kw { color: #4f6ef5; font-weight: bold; }
+    .concept { color: #db2777; }
+
+    /* TABLE */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    th {
+      background: #f8f9fc;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #64748b;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    td:first-child { color: #1a1a2e; font-weight: 600; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .tag-green { background: #dcfce7; color: #16a34a; }
+    .tag-red { background: #fee2e2; color: #dc2626; }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 40px 32px;
+      color: #94a3b8;
+      font-size: 0.82rem;
+      background: #fff;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .footer a { color: #94a3b8; }
+    .footer a:hover { color: #4f6ef5; }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge">Codeplain Demo</div>
+    <h1>Memory Match — Built with Plain English</h1>
+    <p>A live demo of <strong>codeplain</strong>.</p>
+    <div class="hero-links">
+      <a href="https://codeplain.ai" target="_blank" class="btn btn-primary">🌐 codeplain.ai</a>
+      <a href="https://plainlang.org/" target="_blank" class="btn btn-secondary">📖 plainlang.org</a>
+      <a href="https://www.codeplain.ai/" target="_blank" class="btn btn-secondary">⚡ Get Started</a>
+    </div>
+  </div>
+
+  <!-- LIVE GAME -->
+  <section>
+    <div class="container">
+      <div class="section-label">Live Demo</div>
+      <h2>Play the generated game</h2>
+      <p class="section-desc">The actual compiled output from codeplain — zero manual edits to the generated Elm code.</p>
+
+      <div class="game-wrapper">
+        <div class="game-header">
+          <div class="dot" style="background:#ff5f57"></div>
+          <div class="dot" style="background:#febc2e"></div>
+          <div class="dot" style="background:#28c840"></div>
+          <span style="margin-left:8px">memory-match-elm/index.html — generated by codeplain</span>
+        </div>
+        <iframe src="plain_modules/memory-match-elm/index.html" title="Memory Match Game"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- RENDER STATS -->
+  <section>
+    <div class="container">
+      <div class="section-label">Render Stats</div>
+      <h2>How it was built</h2>
+      <p class="section-desc">Codeplain rendered all 8 functionalities sequentially, refactoring the code after each step.</p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="value">2m 5s</span>
+          <span class="label">Total render time</span>
+        </div>
+        <div class="stat-card">
+          <span class="value">8</span>
+          <span class="label">Functionalities</span>
+        </div>
+        <div class="stat-card">
+          <span class="value">2</span>
+          <span class="label">Files generated</span>
+        </div>
+        <div class="stat-card">
+          <span class="value">Elm 0.19.1</span>
+          <span class="label">Language</span>
+        </div>
+        <div class="stat-card">
+          <span class="value">v0.3.1</span>
+          <span class="label">Codeplain version</span>
+        </div>
+        <div class="stat-card">
+          <span class="value">0</span>
+          <span class="label">Lines written manually</span>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>#</th><th>Functionality</th><th>Time</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Cards face-down, randomly shuffled</td><td>~18s</td><td><span class="tag tag-green">✓ done</span></td></tr>
+          <tr><td>2</td><td>Player can flip a card by clicking</td><td>~12s</td><td><span class="tag tag-green">✓ done</span></td></tr>
+          <tr><td>3</td><td>Matching pairs stay face-up</td><td>~13s</td><td><span class="tag tag-green">✓ done</span></td></tr>
+          <tr><td>4</td><td>Non-matching pairs flip back (1s delay)</td><td>~22s</td><td><span class="tag tag-green">✓ done</span></td></tr>
+          <tr><td>5</td><td>Two-card limit, matched cards unclickable</td><td>~22s</td><td><span class="tag tag-green">✓ done</span></td></tr>
+          <tr><td>6</td><td>Move counter display</td><td>~16s</td><td><span class="tag tag-green">✓ done</span></td></tr>
+          <tr><td>7</td><td>Congratulations message on win</td><td>~12s</td><td><span class="tag tag-green">✓ done</span></td></tr>
+          <tr><td>8</td><td>New Game button resets the board</td><td>~17s</td><td><span class="tag tag-green">✓ done</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- THE .PLAIN FILE -->
+  <section>
+    <div class="container">
+      <div class="section-label">The Spec</div>
+      <h2>The .plain file</h2>
+      <p class="section-desc">The complete spec used to generate this game. This is all that was written — codeplain did the rest.</p>
+
+      <div class="plain-file">
+        <div class="file-header">
+          <div class="dot" style="background:#ff5f57"></div>
+          <div class="dot" style="background:#febc2e"></div>
+          <div class="dot" style="background:#28c840"></div>
+          <span style="margin-left:8px">memory-match-elm.plain</span>
+        </div>
+        <pre><span class="kw">***definitions***</span>
+
+- <span class="concept">:App:</span> is a memory match card game.
+- <span class="concept">:Card:</span> is a game tile that has a hidden face-down state and a
+  revealed face-up state showing an emoji symbol.
+- <span class="concept">:Board:</span> is the 4x4 grid of <span class="concept">:Card:</span>s displayed to <span class="concept">:Player:</span>.
+- <span class="concept">:Player:</span> is the person playing <span class="concept">:App:</span>.
+- <span class="concept">:MainExecutableFile:</span> is the main Elm source file.
+
+
+<span class="kw">***implementation reqs***</span>
+
+- <span class="concept">:Implementation:</span> should be in Elm.
+
+- <span class="concept">:App:</span> should be compiled to a single self-contained index.html file
+  using "elm make src/Main.elm --output=index.html".
+
+- <span class="concept">:Board:</span> should contain 16 <span class="concept">:Card:</span>s arranged in a 4x4 grid,
+  made up of 8 matching pairs of emoji symbols.
+
+- <span class="concept">:App:</span> should follow The Elm Architecture (Model, Update, View).
+
+- <span class="concept">:App:</span> should have a clean, centered layout that works in any
+  modern browser and can be deployed to Vercel as a static site.
+
+- The flip-back delay for non-matching <span class="concept">:Card:</span>s should be implemented
+  using Elm's Task and Process.sleep (1 second).
+
+
+<span class="kw">***functional specs***</span>
+
+- At the start of the game, all <span class="concept">:Card:</span>s are face-down and their
+  positions are randomly shuffled.
+
+- <span class="concept">:Player:</span> can flip a <span class="concept">:Card:</span> face-up by clicking on it.
+
+- If <span class="concept">:Player:</span> flips two <span class="concept">:Card:</span>s with matching symbols, both
+  <span class="concept">:Card:</span>s remain face-up and are marked as matched.
+
+- If <span class="concept">:Player:</span> flips two <span class="concept">:Card:</span>s that do not match, both
+  <span class="concept">:Card:</span>s flip back face-down after a short delay (1 second).
+
+- <span class="concept">:Player:</span> cannot flip more than two unmatched <span class="concept">:Card:</span>s at a time,
+  and cannot click already-matched <span class="concept">:Card:</span>s.
+
+- <span class="concept">:App:</span> tracks and displays the number of moves <span class="concept">:Player:</span> has made.
+
+- <span class="concept">:App:</span> displays a congratulations message when all pairs have
+  been matched, showing the total number of moves taken.
+
+- <span class="concept">:Player:</span> can restart the game at any time by clicking a
+  "New Game" button, which reshuffles the <span class="concept">:Card:</span>s and resets
+  the move counter.</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section>
+    <div class="container">
+      <div class="section-label">Comparison</div>
+      <h2>Codeplain vs Vibe Coding</h2>
+      <p class="section-desc">The same game was also built by direct "vibe coding" — one prompt, no spec. Here's how they compare.</p>
+
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Codeplain (Elm)</th><th>Vibe Coding (HTML/JS)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Attempts to complete</td><td>1</td><td>1</td></tr>
+          <tr><td>Spec written</td><td><span class="tag tag-green">Yes (.plain file)</span></td><td><span class="tag tag-red">No</span></td></tr>
+          <tr><td>Time to working code</td><td>~2 min</td><td>~30 sec</td></tr>
+          <tr><td>Files generated</td><td>2 (Main.elm, MemoryGame.elm)</td><td>1 (index.html)</td></tr>
+          <tr><td>Code structure</td><td>Separated logic + UI</td><td>Single file</td></tr>
+          <tr><td>Language</td><td>Elm (functional, type-safe)</td><td>HTML / JavaScript</td></tr>
+          <tr><td>Vercel deployable</td><td><span class="tag tag-green">Yes</span></td><td><span class="tag tag-green">Yes</span></td></tr>
+          <tr><td>Reproducible from spec</td><td><span class="tag tag-green">Yes</span></td><td><span class="tag tag-red">No</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>Built with <a href="https://codeplain.ai" target="_blank">codeplain.ai</a> · v0.3.1 · Elm 0.19.1</p>
+    <p style="margin-top:6px">
+      <a href="https://codeplain.ai" target="_blank">Website</a> ·
+      <a href="https://plainlang.org/" target="_blank">plainlang.org</a> ·
+      <a href="https://www.codeplain.ai/" target="_blank">Get Started</a>
+    </p>
+  </div>
+
+</body>
+</html>
